@@ -433,6 +433,14 @@ function __wbg_get_imports() {
         var v0 = getCachedStringFromWasm0(arg1, arg2);
         getObject(arg0).data = v0;
     };
+    imports.wbg.__wbg_pageX_3e6c12486830d4c5 = function(arg0) {
+        const ret = getObject(arg0).pageX;
+        return ret;
+    };
+    imports.wbg.__wbg_pageY_930d5bb1af089ee4 = function(arg0) {
+        const ret = getObject(arg0).pageY;
+        return ret;
+    };
     imports.wbg.__wbg_setfillStyle_401fa583a1c8863c = function(arg0, arg1) {
         getObject(arg0).fillStyle = getObject(arg1);
     };
@@ -473,14 +481,6 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_composedPath_cf1bb5b8bcff496f = function(arg0) {
         const ret = getObject(arg0).composedPath();
         return addHeapObject(ret);
-    };
-    imports.wbg.__wbg_clientX_1a480606ab0cabaa = function(arg0) {
-        const ret = getObject(arg0).clientX;
-        return ret;
-    };
-    imports.wbg.__wbg_clientY_9c7878f7faf3900f = function(arg0) {
-        const ret = getObject(arg0).clientY;
-        return ret;
     };
     imports.wbg.__wbg_nodeName_52cfd8a325f14a75 = function(arg0, arg1) {
         const ret = getObject(arg1).nodeName;
@@ -590,11 +590,11 @@ function __wbg_get_imports() {
         const ret = makeMutClosure(arg0, arg1, 52, __wbg_adapter_21);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper1006 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper1007 = function(arg0, arg1, arg2) {
         const ret = makeClosure(arg0, arg1, 171, __wbg_adapter_24);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper1558 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper1559 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 226, __wbg_adapter_27);
         return addHeapObject(ret);
     };
@@ -636,7 +636,7 @@ async function __wbg_init(input) {
     if (wasm !== undefined) return wasm;
 
     if (typeof input === 'undefined') {
-        input = new URL('ca-general-758e1f073f9f9085_bg.wasm', import.meta.url);
+        input = new URL('ca-general-5070f4f87c23e67b_bg.wasm', import.meta.url);
     }
     const imports = __wbg_get_imports();
 

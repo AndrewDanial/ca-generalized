@@ -33,8 +33,8 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
             .unchecked_into::<web_sys::CanvasRenderingContext2d>();
         // set color of squares to blue
 
-        let x_index = index(mouse.client_x(), cell_size(), width);
-        let y_index = index(mouse.client_y(), cell_size(), height);
+        let x_index = index(mouse.page_x(), cell_size(), width);
+        let y_index = index(mouse.page_y(), cell_size(), height);
         set_board.update(|b| b[y_index][x_index] = States::Alive);
 
         for i in 0..board().len() {
@@ -119,7 +119,7 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
                     match val {
                         Ok(x) => {
                             set_width(x.to_string());
-                            set_board(vec![vec![States::Dead; x as usize / cell_size() as usize]; h()]);
+                            set_board(vec![vec![States::Dead; w()]; h()]);
                         }
                         Err(_) => { log!("are you stupid")}
                     }
@@ -136,7 +136,7 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
                     match val {
                         Ok(x) => {
                             set_height(x.to_string());
-                            set_board(vec![vec![States::Dead; w()]; x as usize / cell_size() as usize]);
+                            set_board(vec![vec![States::Dead; w()]; h()]);
                         }
                         Err(_) => { log!("are you stupid")}
                     }
