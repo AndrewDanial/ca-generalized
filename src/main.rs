@@ -1,9 +1,9 @@
-#[allow(warnings)]
-pub mod Canvas;
+//#[allow(warnings)]
+pub mod canvas;
 pub mod life;
+use canvas::Canvas;
 use leptos::*;
 pub use life::*;
-use Canvas::Canvas;
 fn main() {
     leptos::mount_to_body(|cx| view! {cx, <App/>});
 }
