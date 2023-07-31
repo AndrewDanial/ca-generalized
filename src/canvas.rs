@@ -22,7 +22,6 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
     let (delay, set_delay) = create_signal(cx, 1000);
 
     let canvas_ref: NodeRef<html::Canvas> = create_node_ref(cx);
-
     let draw_grid = move |_| {
         let ctx = canvas_ref
             .get()
@@ -60,13 +59,9 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
             .flatten()
             .expect("canvas to have context")
             .unchecked_into::<web_sys::CanvasRenderingContext2d>();
-        // set color of squares to blue
 
         let x_index = index(mouse.page_x(), cell_size(), width);
         let y_index = index(mouse.page_y(), cell_size(), height);
-        if mouse.button() == 0 {
-            log!("yeah");
-        }
         set_board.update(|b| b[y_index][x_index] = States::Alive);
 
         for i in 0..board().len() {
@@ -84,8 +79,21 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
                 );
             }
         }
+        for i in (0..=width()).step_by(cell_size() as usize) {
+            ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+            ctx.begin_path();
+            ctx.move_to(i as f64, 0.);
+            ctx.line_to(i as f64 + 1., height() as f64);
+            ctx.fill();
+        }
 
-        canvas_ref.on_load(cx, draw_grid);
+        for i in (0..=height()).step_by(cell_size() as usize) {
+            ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+            ctx.begin_path();
+            ctx.move_to(0., i as f64);
+            ctx.line_to(width() as f64, i as f64 + 1.);
+            ctx.fill();
+        }
     };
 
     let slider_function = move |input: ev::Event| {
@@ -105,7 +113,21 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
         log!("after error");
         ctx.clear_rect(0.0, 0.0, width() as f64, height() as f64);
 
-        //canvas_ref.on_load(cx, draw_grid);
+        for i in (0..=width()).step_by(cell_size() as usize) {
+            ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+            ctx.begin_path();
+            ctx.move_to(i as f64, 0.);
+            ctx.line_to(i as f64 + 1., height() as f64);
+            ctx.fill();
+        }
+
+        for i in (0..=height()).step_by(cell_size() as usize) {
+            ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+            ctx.begin_path();
+            ctx.move_to(0., i as f64);
+            ctx.line_to(width() as f64, i as f64 + 1.);
+            ctx.fill();
+        }
     };
 
     let update = move || {
@@ -134,7 +156,21 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
                 );
             }
         }
-        canvas_ref.on_load(cx, draw_grid);
+        for i in (0..=width()).step_by(cell_size() as usize) {
+            ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+            ctx.begin_path();
+            ctx.move_to(i as f64, 0.);
+            ctx.line_to(i as f64 + 1., height() as f64);
+            ctx.fill();
+        }
+
+        for i in (0..=height()).step_by(cell_size() as usize) {
+            ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+            ctx.begin_path();
+            ctx.move_to(0., i as f64);
+            ctx.line_to(width() as f64, i as f64 + 1.);
+            ctx.fill();
+        }
     };
 
     let timer_function = move |input: ev::Event| {
@@ -156,7 +192,7 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
     });
     view! {cx,
         <div>
-        <canvas on:click=move |mouse| {click_function(mouse)}  width=move || {width()} height=move || {height()} class=("canvas") node_ref=canvas_ref></canvas>
+        <canvas on:click=move |mouse| {click_function(mouse)}  width=move || {width()} height=move || {height()} class=("canvas") _ref=canvas_ref></canvas>
         <div>
             "Width: "
             <input value=move || {width()} on:keypress=move |ev| {
@@ -166,6 +202,29 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
                         Ok(x) => {
                             set_width(x);
                             set_board(vec![vec![States::Dead; w()]; h()]);
+                            let ctx = canvas_ref
+                                    .get()
+                                    .unwrap()
+                                    .get_context("2d")
+                                    .ok()
+                                    .flatten()
+                                    .expect("canvas to have context")
+                                    .unchecked_into::<web_sys::CanvasRenderingContext2d>();
+                            for i in (0..=width()).step_by(cell_size() as usize) {
+                                ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+                                ctx.begin_path();
+                                ctx.move_to(i as f64, 0.);
+                                ctx.line_to(i as f64 + 1., height() as f64);
+                                ctx.fill();
+                            }
+
+                            for i in (0..=height()).step_by(cell_size() as usize) {
+                                ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+                                ctx.begin_path();
+                                ctx.move_to(0., i as f64);
+                                ctx.line_to(width() as f64, i as f64 + 1.);
+                                ctx.fill();
+                            }
                         }
                         Err(_) => { log!("are you stupid")}
                     }
@@ -183,6 +242,29 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
                         Ok(x) => {
                             set_height(x);
                             set_board(vec![vec![States::Dead; w()]; h()]);
+                            let ctx = canvas_ref
+                                    .get()
+                                    .unwrap()
+                                    .get_context("2d")
+                                    .ok()
+                                    .flatten()
+                                    .expect("canvas to have context")
+                                    .unchecked_into::<web_sys::CanvasRenderingContext2d>();
+                            for i in (0..=width()).step_by(cell_size() as usize) {
+                                ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+                                ctx.begin_path();
+                                ctx.move_to(i as f64, 0.);
+                                ctx.line_to(i as f64 + 1., height() as f64);
+                                ctx.fill();
+                            }
+
+                            for i in (0..=height()).step_by(cell_size() as usize) {
+                                ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+                                ctx.begin_path();
+                                ctx.move_to(0., i as f64);
+                                ctx.line_to(width() as f64, i as f64 + 1.);
+                                ctx.fill();
+                            }
                         }
                         Err(_) => { log!("are you stupid")}
                     }
@@ -191,8 +273,8 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
             } >
             </input>
         </div>
-        <div>Cell Size: {cell_size}<input type="range" value="32"
-        min="32" max="128" step="32" on:input=move |ev| {
+        <div>Cell Size: {cell_size}<input type="range" value=move || cell_size()
+        min=32 max=128 step=32 on:input=move |ev| {
             slider_function(ev);
         } ></input></div>
         <div><input value="Next" type="button" on:click=move |_| {
