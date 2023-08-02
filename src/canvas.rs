@@ -20,7 +20,7 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
     ) = create_signal(cx, None);
 
     let (delay, set_delay) = create_signal(cx, 1000);
-
+    let (cell_color, set_cell_color) = create_signal(cx, String::from("#FFFFFF"));
     let canvas_ref: NodeRef<html::Canvas> = create_node_ref(cx);
     let draw_grid = move |_| {
         let ctx = canvas_ref
@@ -67,7 +67,7 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
         for i in 0..board().len() {
             for j in 0..board()[i].len() {
                 if let States::Alive = board()[i][j] {
-                    ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+                    ctx.set_fill_style(&wasm_bindgen::JsValue::from_str(cell_color().as_str()));
                 } else {
                     ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#000000"));
                 }
@@ -144,7 +144,48 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
         for i in 0..board().len() {
             for j in 0..board()[i].len() {
                 if let States::Alive = board()[i][j] {
-                    ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+                    ctx.set_fill_style(&wasm_bindgen::JsValue::from_str(cell_color().as_str()));
+                } else {
+                    ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#000000"));
+                }
+                ctx.fill_rect(
+                    (j as i32 * cell_size()) as f64,
+                    (i as i32 * cell_size()) as f64,
+                    cell_size() as f64,
+                    cell_size() as f64,
+                );
+            }
+        }
+        for i in (0..=width()).step_by(cell_size() as usize) {
+            ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+            ctx.begin_path();
+            ctx.move_to(i as f64, 0.);
+            ctx.line_to(i as f64 + 1., height() as f64);
+            ctx.fill();
+        }
+
+        for i in (0..=height()).step_by(cell_size() as usize) {
+            ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+            ctx.begin_path();
+            ctx.move_to(0., i as f64);
+            ctx.line_to(width() as f64, i as f64 + 1.);
+            ctx.fill();
+        }
+    };
+
+    let render = move || {
+        let ctx = canvas_ref
+            .get()
+            .unwrap()
+            .get_context("2d")
+            .ok()
+            .flatten()
+            .expect("canvas to have context")
+            .unchecked_into::<web_sys::CanvasRenderingContext2d>();
+        for i in 0..board().len() {
+            for j in 0..board()[i].len() {
+                if let States::Alive = board()[i][j] {
+                    ctx.set_fill_style(&wasm_bindgen::JsValue::from_str(cell_color().as_str()));
                 } else {
                     ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#000000"));
                 }
@@ -291,6 +332,13 @@ pub fn Canvas(cx: Scope) -> impl IntoView {
                 set_handle(Some(set_interval_with_handle(update, Duration::from_millis(delay()))));
             }
         }></input>
+        <div>
+        <input type="color" value="#FFFFFF" on:input=move|ev| {
+            set_cell_color(event_target_value(&ev));
+            render();
+        }></input>
+        </div>
+
         </div>
     }
 }
