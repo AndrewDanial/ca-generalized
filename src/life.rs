@@ -3,6 +3,15 @@ pub enum States {
     Dead,
     Alive,
 }
+pub struct Rule {
+    count: i32,
+    next_state_index: usize,
+}
+pub struct Board {
+    states: u32,
+    colors: Vec<String>,
+    rules: Vec<Rule>,
+}
 
 pub fn next(board: &Vec<Vec<States>>) -> Vec<Vec<States>> {
     let mut next_gen: Vec<Vec<States>> = board.clone();

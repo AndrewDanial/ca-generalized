@@ -54,37 +54,6 @@ pub fn Canvas() -> impl IntoView {
             render_grid();
         });
     });
-    let click_function = move |mouse: ev::MouseEvent| {
-        let ctx = canvas_ref
-            .get()
-            .unwrap()
-            .get_context("2d")
-            .ok()
-            .flatten()
-            .expect("canvas to have context")
-            .unchecked_into::<web_sys::CanvasRenderingContext2d>();
-
-        let x_index = index(mouse.page_x(), cell_size(), width);
-        let y_index = index(mouse.page_y(), cell_size(), height);
-        set_board.update(|b| b[y_index][x_index] = States::Alive);
-        log!("{:?}", board());
-        for i in 0..(&board()).len() {
-            for j in 0..(&board()[i]).len() {
-                if let States::Alive = board()[i][j] {
-                    ctx.set_fill_style(&wasm_bindgen::JsValue::from_str(cell_color().as_str()));
-                } else {
-                    ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#000000"));
-                }
-                ctx.fill_rect(
-                    (j as i32 * cell_size()) as f64,
-                    (i as i32 * cell_size()) as f64,
-                    cell_size() as f64,
-                    cell_size() as f64,
-                );
-            }
-        }
-        render_grid();
-    };
 
     let slider_function = move |input: ev::Event| {
         input.prevent_default();
@@ -130,6 +99,14 @@ pub fn Canvas() -> impl IntoView {
         }
 
         render_grid();
+    };
+
+    let click_function = move |mouse: ev::MouseEvent| {
+        let x_index = index(mouse.page_x(), cell_size(), width);
+        let y_index = index(mouse.page_y(), cell_size(), height);
+        set_board.update(|b| b[y_index][x_index] = States::Alive);
+        log!("{:?}", board());
+        render_board();
     };
     let update = move || {
         let next = next(&board());
