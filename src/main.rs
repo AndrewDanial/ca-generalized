@@ -10,10 +10,10 @@ use std::panic;
 
 fn main() {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
-    leptos::mount_to_body(|cx| view! {cx, <App/>});
+    leptos::mount_to_body(|| view! {<App/>});
 }
 
 #[component]
-fn App(cx: Scope) -> impl IntoView {
-    view! {cx, <Canvas />}
+fn App() -> impl IntoView {
+    view! {<Canvas />}
 }

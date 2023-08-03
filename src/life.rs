@@ -27,6 +27,7 @@ pub fn next(board: &Vec<Vec<States>>) -> Vec<Vec<States>> {
     next_gen
 }
 
+// count the number of neighbors to a cell with wrap-around logic
 fn count_neighbors(board: &Vec<Vec<States>>, x: &i32, y: &i32) -> i32 {
     let mut count = 0;
     for i in -1..=1 {
