@@ -105,7 +105,6 @@ pub fn Canvas() -> impl IntoView {
         let x_index = index(mouse.page_x(), cell_size(), width);
         let y_index = index(mouse.page_y(), cell_size(), height);
         set_board.update(|b| b[y_index][x_index] = States::Alive);
-        log!("{:?}", board());
         render_board();
     };
     let update = move || {
