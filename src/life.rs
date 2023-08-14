@@ -7,21 +7,23 @@ pub enum States {
 }
 
 #[derive(Clone)]
-struct Rule {
-    target_state: usize,
-    predicate: Rc<dyn Fn(u32) -> bool>,
+pub struct Rule {
+    pub target_state: usize,
+    pub predicate: Rc<dyn Fn(u32) -> bool>,
 }
 
 #[derive(Clone)]
-struct State {
-    index: usize,
-    color: String,
-    fail_state: usize,
-    rules: Vec<Rule>,
+pub struct State {
+    pub index: usize,
+    pub color: String,
+    pub fail_state: usize,
+    pub rules: Vec<Rule>,
 }
+
+#[derive(Clone)]
 pub struct Board {
-    grid: Vec<Vec<State>>,
-    state_types: Vec<State>,
+    pub grid: Vec<Vec<usize>>,
+    pub state_types: Vec<State>,
 }
 
 impl Rule {
@@ -34,7 +36,7 @@ impl Rule {
 }
 
 impl State {
-    fn new(index: usize, color: String, fail_state: usize, rules: Vec<Rule>) -> Self {
+    pub fn new(index: usize, color: String, fail_state: usize, rules: Vec<Rule>) -> Self {
         State {
             index,
             color,
@@ -55,9 +57,9 @@ impl Board {
     pub fn new() -> Self {
         // By default, the board uses regular game of life rules.
         let state_0 = State::new(
-            0,
-            String::from("#000000"),
-            0,
+            0,                       // index
+            String::from("#000000"), // color
+            0,                       // fail state
             vec![Rule::new(
                 1,
                 Rc::new(|count| if count == 3 { true } else { false }),
@@ -68,44 +70,38 @@ impl Board {
             1,
             String::from("#FFFFFF"),
             0,
-            vec![Rule::new(
-                1,
-                Rc::new(|count| {
-                    if count == 2 || count == 3 {
-                        true
-                    } else {
-                        false
-                    }
-                }),
-            )],
+            vec![
+                Rule::new(1, Rc::new(|count| if count == 2 { true } else { false })),
+                Rule::new(1, Rc::new(|count| if count == 3 { true } else { false })),
+            ],
         );
         let state_types = vec![state_0.clone(), state_1];
         Board {
-            grid: vec![vec![state_0.clone(); 1024]; 512],
+            grid: vec![vec![0; 1024]; 512],
             state_types,
         }
     }
 
-    pub fn next(&mut self) {
-        let mut next_gen = self.grid.clone();
+    pub fn next(&self) -> Vec<Vec<usize>> {
+        let mut next_gen = vec![vec![0; 1024]; 512];
         for y in 0..self.grid.len() {
             for x in 0..self.grid[y].len() {
                 let neighbors = self.count_neighbors(x as i32, y as i32);
                 let mut found = false;
-                for rule in self.grid[y][x].clone().rules {
+                for rule in self.state_types[self.grid[y][x]].clone().rules {
                     let output = (rule.predicate)(neighbors[rule.target_state]);
                     if output {
-                        next_gen[y][x] = self.state_types[rule.target_state].clone();
+                        next_gen[y][x] = self.state_types[rule.target_state].index;
                         found = true;
                         break;
                     }
                 }
                 if !found {
-                    next_gen[y][x] = self.state_types[self.grid[y][x].clone().fail_state].clone();
+                    next_gen[y][x] = self.state_types[self.grid[y][x]].fail_state;
                 }
             }
         }
-        self.grid = next_gen;
+        next_gen
     }
 
     fn count_neighbors(&self, x: i32, y: i32) -> Vec<u32> {
@@ -129,71 +125,9 @@ impl Board {
                 } else {
                     (x + j) as usize
                 };
-                match self.grid[first][second].clone() {
-                    x => {
-                        counter[x.index] += 1;
-                    }
-                }
+                counter[self.state_types[self.grid[first][second]].index] += 1;
             }
         }
         counter
     }
-}
-
-pub fn next(board: &Vec<Vec<States>>) -> Vec<Vec<States>> {
-    let mut next_gen: Vec<Vec<States>> = board.clone();
-    for y in 0..board.len() {
-        for x in 0..board[y].len() {
-            let neighbors = count_neighbors(&board, &(x as i32), &(y as i32));
-            if let States::Alive = board[y][x] {
-                if neighbors == 2 || neighbors == 3 {
-                    next_gen[y][x] = States::Alive;
-                    continue;
-                }
-            } else if let States::Dead = board[y][x] {
-                if neighbors == 3 {
-                    next_gen[y][x] = States::Alive;
-                    continue;
-                }
-            }
-
-            next_gen[y][x] = States::Dead;
-        }
-    }
-    next_gen
-}
-
-// count the number of neighbors to a cell with wrap-around logic
-fn count_neighbors(board: &Vec<Vec<States>>, x: &i32, y: &i32) -> i32 {
-    let mut count = 0;
-    for i in -1..=1 {
-        for j in -1..=1 {
-            let first = if (y + i) < 0 {
-                board.len() - 1
-            } else if (y + i) as usize >= board.len() {
-                0
-            } else {
-                (y + i) as usize
-            };
-            let second = if (x + j) < 0 {
-                board[0].len() - 1
-            } else if (x + j) as usize >= board[0].len() {
-                0
-            } else {
-                (x + j) as usize
-            };
-            match board[first][second] {
-                States::Alive => {
-                    count += 1;
-                }
-                States::Dead => {}
-            }
-        }
-    }
-    count -= if let States::Alive = board[*y as usize][*x as usize] {
-        1
-    } else {
-        0
-    };
-    count
 }

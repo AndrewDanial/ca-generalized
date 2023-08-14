@@ -5,22 +5,20 @@ use std::f64;
 use std::time::Duration;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
+
 #[component]
 pub fn Canvas() -> impl IntoView {
     let (width, _) = create_signal(1024);
     let (height, _) = create_signal(512);
     let (cell_size, set_cell_size) = create_signal(32 as i32);
     let (paused, set_paused) = create_signal(true);
-    let w = move || (width() / cell_size()) as usize;
-    let h = move || (height() / cell_size()) as usize;
-    let (board, set_board) = create_signal(vec![vec![States::Dead; w()]; h()]);
+    let (board, set_board) = create_signal(Board::new());
     let (handle, set_handle): (
         ReadSignal<Option<Result<IntervalHandle, JsValue>>>,
         WriteSignal<Option<Result<IntervalHandle, JsValue>>>,
     ) = create_signal(None);
 
     let (delay, set_delay) = create_signal(1000);
-    let (cell_color, set_cell_color) = create_signal(String::from("#FFFFFF"));
     let canvas_ref: NodeRef<html::Canvas> = create_node_ref();
 
     let render_grid = move || {
@@ -58,7 +56,7 @@ pub fn Canvas() -> impl IntoView {
     let slider_function = move |input: ev::Event| {
         input.prevent_default();
         set_cell_size(event_target_value(&input).parse().unwrap());
-        set_board(vec![vec![States::Dead; w()]; h()]);
+        set_board(Board::new());
 
         let ctx = canvas_ref
             .get()
@@ -82,34 +80,55 @@ pub fn Canvas() -> impl IntoView {
             .flatten()
             .expect("canvas to have context")
             .unchecked_into::<web_sys::CanvasRenderingContext2d>();
-        for i in 0..board().len() {
-            for j in 0..board()[i].len() {
-                if let States::Alive = board()[i][j] {
-                    ctx.set_fill_style(&wasm_bindgen::JsValue::from_str(cell_color().as_str()));
-                } else {
-                    ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#000000"));
-                }
-                ctx.fill_rect(
-                    (j as i32 * cell_size()) as f64,
-                    (i as i32 * cell_size()) as f64,
-                    cell_size() as f64,
-                    cell_size() as f64,
-                );
-            }
-        }
+        log!("before get");
+        let (grid, state_types) = (board().grid, board().state_types);
+        log!("after get");
+        let grid_height = grid.len();
+        let grid_width = grid[0].len();
 
+        for i in 0..grid_height * grid_width {
+            log!("{}", i);
+            // for j in 0..grid_width {
+            //     // ctx.set_fill_style(&wasm_bindgen::JsValue::from_str(
+            //     //     state_types[grid[i][j]].color.as_str(),
+            //     // ));
+            //     // ctx.fill_rect(
+            //     //     (j as i32 * cell_size()) as f64,
+            //     //     (i as i32 * cell_size()) as f64,
+            //     //     cell_size() as f64,
+            //     //     cell_size() as f64,
+            //     // );
+            // }
+        }
         render_grid();
     };
 
     let click_function = move |mouse: ev::MouseEvent| {
         let x_index = index(mouse.page_x(), cell_size(), width);
         let y_index = index(mouse.page_y(), cell_size(), height);
-        set_board.update(|b| b[y_index][x_index] = States::Alive);
-        render_board();
+        let state = board().state_types[1].clone();
+        let ctx = canvas_ref
+            .get()
+            .unwrap()
+            .get_context("2d")
+            .ok()
+            .flatten()
+            .expect("canvas to have context")
+            .unchecked_into::<web_sys::CanvasRenderingContext2d>();
+        set_board.update(|b| b.grid[y_index][x_index] = state.index);
+        ctx.set_fill_style(&wasm_bindgen::JsValue::from_str(&state.color));
+        ctx.fill_rect(
+            (x_index as i32 * cell_size()) as f64,
+            (y_index as i32 * cell_size()) as f64,
+            cell_size() as f64,
+            cell_size() as f64,
+        );
     };
     let update = move || {
-        let next = next(&board());
-        set_board.update(|b| *b = next);
+        log!("before next");
+        let next = board().next();
+        log!("after next");
+        set_board.update(|b| b.grid = next);
         render_board();
     };
 
@@ -190,7 +209,6 @@ pub fn Canvas() -> impl IntoView {
         }></input>
         <div>
         <input type="color" value="#FFFFFF" on:input=move|ev| {
-            set_cell_color(event_target_value(&ev));
             render_board();
         }></input>
         </div>
