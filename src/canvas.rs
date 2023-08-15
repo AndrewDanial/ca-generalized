@@ -12,7 +12,9 @@ pub fn Canvas() -> impl IntoView {
     let (height, _) = create_signal(512);
     let (cell_size, set_cell_size) = create_signal(32 as i32);
     let (paused, set_paused) = create_signal(true);
-    let (board, set_board) = create_signal(Board::new());
+    let w = move || (width() / cell_size()) as usize;
+    let h = move || (height() / cell_size()) as usize;
+    let (board, set_board) = create_signal(Board::new(w(), h()));
     let (handle, set_handle): (
         ReadSignal<Option<Result<IntervalHandle, JsValue>>>,
         WriteSignal<Option<Result<IntervalHandle, JsValue>>>,
@@ -56,7 +58,7 @@ pub fn Canvas() -> impl IntoView {
     let slider_function = move |input: ev::Event| {
         input.prevent_default();
         set_cell_size(event_target_value(&input).parse().unwrap());
-        set_board(Board::new());
+        set_board(Board::new(w(), h()));
 
         let ctx = canvas_ref
             .get()
@@ -86,19 +88,18 @@ pub fn Canvas() -> impl IntoView {
         let grid_height = grid.len();
         let grid_width = grid[0].len();
 
-        for i in 0..grid_height * grid_width {
-            log!("{}", i);
-            // for j in 0..grid_width {
-            //     // ctx.set_fill_style(&wasm_bindgen::JsValue::from_str(
-            //     //     state_types[grid[i][j]].color.as_str(),
-            //     // ));
-            //     // ctx.fill_rect(
-            //     //     (j as i32 * cell_size()) as f64,
-            //     //     (i as i32 * cell_size()) as f64,
-            //     //     cell_size() as f64,
-            //     //     cell_size() as f64,
-            //     // );
-            // }
+        for i in 0..grid_height {
+            for j in 0..grid_width {
+                ctx.set_fill_style(&wasm_bindgen::JsValue::from_str(
+                    state_types[grid[i][j]].color.as_str(),
+                ));
+                ctx.fill_rect(
+                    (j as i32 * cell_size()) as f64,
+                    (i as i32 * cell_size()) as f64,
+                    cell_size() as f64,
+                    cell_size() as f64,
+                );
+            }
         }
         render_grid();
     };
@@ -208,7 +209,7 @@ pub fn Canvas() -> impl IntoView {
             }
         }></input>
         <div>
-        <input type="color" value="#FFFFFF" on:input=move|ev| {
+        <input type="color" value="#FFFFFF" on:input=move|_| {
             render_board();
         }></input>
         </div>

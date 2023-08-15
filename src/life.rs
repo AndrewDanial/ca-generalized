@@ -1,10 +1,4 @@
-use std::fmt::Debug;
 use std::rc::Rc;
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum States {
-    Dead,
-    Alive,
-}
 
 #[derive(Clone)]
 pub struct Rule {
@@ -46,15 +40,8 @@ impl State {
     }
 }
 
-impl Debug for State {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} ", self.index)?;
-        Ok(())
-    }
-}
-
 impl Board {
-    pub fn new() -> Self {
+    pub fn new(width: usize, height: usize) -> Self {
         // By default, the board uses regular game of life rules.
         let state_0 = State::new(
             0,                       // index
@@ -75,15 +62,15 @@ impl Board {
                 Rule::new(1, Rc::new(|count| if count == 3 { true } else { false })),
             ],
         );
-        let state_types = vec![state_0.clone(), state_1];
+        let state_types = vec![state_0, state_1];
         Board {
-            grid: vec![vec![0; 1024]; 512],
+            grid: vec![vec![0; width]; height],
             state_types,
         }
     }
 
     pub fn next(&self) -> Vec<Vec<usize>> {
-        let mut next_gen = vec![vec![0; 1024]; 512];
+        let mut next_gen = vec![vec![0; self.grid[0].len()]; self.grid.len()];
         for y in 0..self.grid.len() {
             for x in 0..self.grid[y].len() {
                 let neighbors = self.count_neighbors(x as i32, y as i32);
