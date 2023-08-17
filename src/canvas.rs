@@ -32,20 +32,22 @@ pub fn Canvas() -> impl IntoView {
             .flatten()
             .expect("canvas to have context")
             .unchecked_into::<web_sys::CanvasRenderingContext2d>();
+
         for i in (0..=width()).step_by(cell_size() as usize) {
-            ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+            // ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+            ctx.set_stroke_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
             ctx.begin_path();
             ctx.move_to(i as f64, 0.);
             ctx.line_to(i as f64 + 1., height() as f64);
-            ctx.fill();
+            ctx.stroke();
         }
 
         for i in (0..=height()).step_by(cell_size() as usize) {
-            ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
+            ctx.set_stroke_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
             ctx.begin_path();
             ctx.move_to(0., i as f64);
             ctx.line_to(width() as f64, i as f64 + 1.);
-            ctx.fill();
+            ctx.stroke();
         }
     };
 
