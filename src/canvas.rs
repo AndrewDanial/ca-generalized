@@ -1,11 +1,11 @@
 use crate::life::*;
+use crate::states::States;
 use leptos::leptos_dom::helpers::IntervalHandle;
 use leptos::*;
 use std::f64;
 use std::time::Duration;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-
 #[component]
 pub fn Canvas() -> impl IntoView {
     let (width, _) = create_signal(1024);
@@ -211,12 +211,10 @@ pub fn Canvas() -> impl IntoView {
             }
         }></input>
         <div>
-        <input type="color" value="#FFFFFF" on:input=move|_| {
-            render_board();
-        }></input>
         </div>
 
         </div>
+        <States board=board />
     }
 }
 
