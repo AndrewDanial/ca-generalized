@@ -25,35 +25,6 @@ pub fn Settings(
     let (paused, set_paused) = create_signal(true);
     let (delay, set_delay) = create_signal(1000);
 
-    // let render_board = move || {
-    //     let ctx = canvas_ref
-    //         .get()
-    //         .unwrap()
-    //         .get_context("2d")
-    //         .ok()
-    //         .flatten()
-    //         .expect("canvas to have context")
-    //         .unchecked_into::<web_sys::CanvasRenderingContext2d>();
-    //     let (grid, state_types) = (r_board().grid, r_board().state_types);
-    //     let grid_height = grid.len();
-    //     let grid_width = grid[0].len();
-
-    //     for i in 0..grid_height {
-    //         for j in 0..grid_width {
-    //             ctx.set_fill_style(&wasm_bindgen::JsValue::from_str(
-    //                 state_types[grid[i][j]].color.as_str(),
-    //             ));
-    //             ctx.fill_rect(
-    //                 (j as i32 * r_cell_size()) as f64,
-    //                 (i as i32 * r_cell_size()) as f64,
-    //                 r_cell_size() as f64,
-    //                 r_cell_size() as f64,
-    //             );
-    //         }
-    //     }
-    //     render_grid(canvas_ref.get().unwrap(), width(), height(), r_cell_size());
-    // };
-
     let slider_function = move |input: ev::Event| {
         input.prevent_default();
         w_cell_size(event_target_value(&input).parse().unwrap());

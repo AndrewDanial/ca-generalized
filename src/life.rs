@@ -1,5 +1,5 @@
 use std::rc::Rc;
-
+// If the predicate is true, go to target_state, else go to state's fail state
 #[derive(Clone)]
 pub struct Rule {
     pub target_state: usize,
@@ -70,7 +70,7 @@ impl Board {
     }
 
     pub fn next(&self) -> Vec<Vec<usize>> {
-        let mut next_gen = vec![vec![0; self.grid[0].len()]; self.grid.len()];
+        let mut next_gen = self.grid.clone();
         for y in 0..self.grid.len() {
             for x in 0..self.grid[y].len() {
                 let neighbors = self.count_neighbors(x as i32, y as i32);

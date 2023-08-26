@@ -14,7 +14,7 @@ pub fn Canvas() -> impl IntoView {
     let w = move || (width() / cell_size()) as usize;
     let h = move || (height() / cell_size()) as usize;
     let (board, set_board) = create_signal(Board::new(w(), h()));
-
+    let (curr_state, set_curr_state) = create_signal(1usize);
     let canvas_ref: NodeRef<html::Canvas> = create_node_ref();
 
     canvas_ref.on_load(move |canvas_ref| {
@@ -26,7 +26,7 @@ pub fn Canvas() -> impl IntoView {
     let click_function = move |mouse: ev::MouseEvent| {
         let x_index = index(mouse.page_x(), cell_size(), width);
         let y_index = index(mouse.page_y(), cell_size(), height);
-        let state = board().state_types[1].clone();
+        let state = board().state_types[curr_state()].clone();
         let ctx = canvas_ref
             .get()
             .unwrap()
@@ -38,10 +38,10 @@ pub fn Canvas() -> impl IntoView {
         set_board.update(|b| b.grid[y_index][x_index] = state.index);
         ctx.set_fill_style(&wasm_bindgen::JsValue::from_str(&state.color));
         ctx.fill_rect(
-            (x_index as i32 * cell_size()) as f64,
-            (y_index as i32 * cell_size()) as f64,
-            cell_size() as f64,
-            cell_size() as f64,
+            (x_index as i32 * cell_size()) as f64 + 1.,
+            (y_index as i32 * cell_size()) as f64 + 1.,
+            cell_size() as f64 - 1.,
+            cell_size() as f64 - 1.,
         );
     };
 
@@ -72,11 +72,10 @@ pub fn Canvas() -> impl IntoView {
             width=width
             height=height
             r_cell_size=cell_size
-            w_cell_size=set_cell_size
             r_board=board
             w_board=set_board
-            render_grid=render_grid
             render_board=render_board
+            set_state=set_curr_state
         />
     }
 }
