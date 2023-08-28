@@ -130,5 +130,7 @@ pub fn Settings(
                 }
             }
         />
+
+        <div></div>
     }
 }

@@ -21,7 +21,6 @@ pub fn States(
 
     let add_states = move |_| {
         let sig = create_signal(next_id + 1);
-        log!("{}", next_id);
         let default_state = State::new(
             next_id,
             String::from("#FF0000"),
@@ -43,6 +42,7 @@ pub fn States(
         });
         next_id += 1;
     };
+
     view! {
         States:
         <button on:click=add_states>"Add State"</button>
@@ -58,26 +58,45 @@ pub fn States(
                             set_state.set(id);
                         }>"Select State"</button>
                         <button>"Add Rule"</button>
-                        <p>
-                            <input
-                                type="color"
-                                value=move || { r_board().state_types[id].color.clone() }
-                                on:input=move |ev| {
-                                    w_board
-                                        .update(|b| {
-                                            b.state_types[id].color = event_target_value(&ev);
-                                        });
-                                    render_board(
-                                        canvas_ref.get().unwrap(),
-                                        width(),
-                                        height(),
-                                        r_cell_size(),
-                                        &r_board(),
-                                    );
+
+                        Color:
+                        <input
+                            type="color"
+                            value=move || { r_board().state_types[id].color.clone() }
+                            on:input=move |ev| {
+                                w_board
+                                    .update(|b| {
+                                        b.state_types[id].color = event_target_value(&ev);
+                                    });
+                                render_board(
+                                    canvas_ref.get().unwrap(),
+                                    width(),
+                                    height(),
+                                    r_cell_size(),
+                                    &r_board(),
+                                );
+                            }
+                        />
+
+                        Fail State:
+                        <select id=id on:input=move |ev| {
+                            w_board.update(|b| b.state_types[id].fail_state = event_target_value(&ev).parse::<usize>().unwrap());
+                        }>
+                            <For
+                                each=states
+                                key=|states| states.0
+                                view=move |(id, (_, _))| {
+                                    view! {
+                                        <option value=id >
+                                            State
+                                            {id}
+                                        </option>
+                                    }
                                 }
                             />
 
-                        </p>
+                        </select>
+                        <div> </div>
                     </div>
                 }
             }
