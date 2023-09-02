@@ -47,40 +47,51 @@ impl State {
 }
 
 impl Board {
-    pub fn new(width: usize, height: usize) -> Self {
-        // By default, the board uses regular game of life rules.
-        let state_0 = State::new(
-            0,                       // index
-            String::from("#000000"), // color
-            0,                       // fail state
-            vec![Rule::new(
-                1,
-                3,
-                Rc::new(|count, target_count| if count == target_count { true } else { false }),
-            )],
-        );
-
-        let state_1 = State::new(
-            1,
-            String::from("#FFFFFF"),
-            0,
-            vec![
-                Rule::new(
-                    1,
-                    2,
-                    Rc::new(|count, target_count| if count == target_count { true } else { false }),
-                ),
-                Rule::new(
+    pub fn new(width: usize, height: usize, state_types: Option<Vec<State>>) -> Self {
+        if let Some(state_types) = state_types {
+            Board {
+                grid: vec![vec![0; width]; height],
+                state_types,
+            }
+        } else {
+            // By default, the board uses regular game of life rules.
+            let state_0 = State::new(
+                0,                       // index
+                String::from("#000000"), // color
+                0,                       // fail state
+                vec![Rule::new(
                     1,
                     3,
                     Rc::new(|count, target_count| if count == target_count { true } else { false }),
-                ),
-            ],
-        );
-        let state_types = vec![state_0, state_1];
-        Board {
-            grid: vec![vec![0; width]; height],
-            state_types,
+                )],
+            );
+
+            let state_1 = State::new(
+                1,
+                String::from("#FFFFFF"),
+                0,
+                vec![
+                    Rule::new(
+                        1,
+                        2,
+                        Rc::new(
+                            |count, target_count| if count == target_count { true } else { false },
+                        ),
+                    ),
+                    Rule::new(
+                        1,
+                        3,
+                        Rc::new(
+                            |count, target_count| if count == target_count { true } else { false },
+                        ),
+                    ),
+                ],
+            );
+            let states = vec![state_0, state_1];
+            Board {
+                grid: vec![vec![0; width]; height],
+                state_types: states,
+            }
         }
     }
 

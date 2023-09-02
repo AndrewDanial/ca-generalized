@@ -13,7 +13,7 @@ pub fn Canvas() -> impl IntoView {
     let (cell_size, set_cell_size) = create_signal(32 as i32);
     let w = move || (width() / cell_size()) as usize;
     let h = move || (height() / cell_size()) as usize;
-    let (board, set_board) = create_signal(Board::new(w(), h()));
+    let (board, set_board) = create_signal(Board::new(w(), h(), None));
     let (curr_state, set_curr_state) = create_signal(1usize);
     let canvas_ref: NodeRef<html::Canvas> = create_node_ref();
 
@@ -74,6 +74,7 @@ pub fn Canvas() -> impl IntoView {
             r_cell_size=cell_size
             r_board=board
             w_board=set_board
+            render_grid=render_grid
             render_board=render_board
             set_state=set_curr_state
         />
@@ -97,7 +98,6 @@ fn render_grid(canvas_ref: HtmlElement<Canvas>, width: i32, height: i32, cell_si
         .unchecked_into::<web_sys::CanvasRenderingContext2d>();
 
     for i in (0..=width).step_by(cell_size as usize) {
-        // ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
         ctx.set_stroke_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
         ctx.begin_path();
         ctx.move_to(i as f64, 0.);
@@ -133,9 +133,14 @@ fn render_board(
 
     for i in 0..grid_height {
         for j in 0..grid_width {
-            ctx.set_fill_style(&wasm_bindgen::JsValue::from_str(
-                state_types[grid[i][j]].color.as_str(),
-            ));
+            if !state_types.is_empty() {
+                ctx.set_fill_style(&wasm_bindgen::JsValue::from_str(
+                    state_types[grid[i][j]].color.as_str(),
+                ));
+            } else {
+                ctx.set_fill_style(&wasm_bindgen::JsValue::from_str("#000000"));
+            }
+
             ctx.fill_rect(
                 (j as i32 * cell_size) as f64,
                 (i as i32 * cell_size) as f64,

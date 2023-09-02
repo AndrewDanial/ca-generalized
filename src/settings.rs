@@ -28,7 +28,7 @@ pub fn Settings(
     let slider_function = move |input: ev::Event| {
         input.prevent_default();
         w_cell_size(event_target_value(&input).parse().unwrap());
-        w_board(Board::new(w(), h()));
+        w_board(Board::new(w(), h(), None));
 
         let ctx = canvas_ref
             .get()
