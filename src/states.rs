@@ -18,7 +18,6 @@ pub fn States(
         .map(|id| (id, create_signal(id + 1)))
         .collect::<Vec<_>>();
     let (states, set_states) = create_signal(initial_states);
-
     let add_states = move |_| {
         let sig = create_signal(next_id + 1);
         let default_state = State::new(
@@ -28,11 +27,13 @@ pub fn States(
             vec![
                 Rule::new(
                     next_id,
-                    Rc::new(|count| if count == 2 { true } else { false }),
+                    2,
+                    Rc::new(|count, _| if count == 2 { true } else { false }),
                 ),
                 Rule::new(
                     next_id,
-                    Rc::new(|count| if count == 3 { true } else { false }),
+                    3,
+                    Rc::new(|count, _| if count == 3 { true } else { false }),
                 ),
             ],
         );
@@ -43,6 +44,16 @@ pub fn States(
         next_id += 1;
     };
 
+    let mut remove_states = move |id| {
+        log!("{id}");
+        set_states.update(|states| {
+            states.retain(|(state_id, _)| state_id != &id);
+        });
+        for i in id..states().len() {
+            set_states.update(|a| a[i].0 -= 1);
+        }
+        next_id -= 1;
+    };
     view! {
         States:
         <button on:click=add_states>"Add State"</button>
@@ -58,7 +69,7 @@ pub fn States(
                             set_state.set(id);
                         }>"Select State"</button>
                         <button>"Add Rule"</button>
-
+                        <button on:click=move |_| {remove_states(id)}>"Remove State"</button>
                         Color:
                         <input
                             type="color"
@@ -79,15 +90,26 @@ pub fn States(
                         />
 
                         Fail State:
-                        <select id=id on:input=move |ev| {
-                            w_board.update(|b| b.state_types[id].fail_state = event_target_value(&ev).parse::<usize>().unwrap());
-                        }>
+                        <select
+                            id=id
+                            on:input=move |ev| {
+                                w_board
+                                    .update(|b| {
+                                        b
+                                            .state_types[id]
+                                            .fail_state = event_target_value(&ev)
+                                            .parse::<usize>()
+                                            .unwrap();
+                                    });
+                            }
+                        >
+
                             <For
                                 each=states
                                 key=|states| states.0
                                 view=move |(id, (_, _))| {
                                     view! {
-                                        <option value=id >
+                                        <option value=id>
                                             State
                                             {id}
                                         </option>
@@ -96,7 +118,59 @@ pub fn States(
                             />
 
                         </select>
-                        <div> </div>
+
+                    // <div>
+                    // Rules:
+                    // {
+                    // let next_rule = r_board().state_types[id].rules.len();
+                    // let initial_rules = (0..next_rule)
+                    // .map(|id| (id, create_signal(id + 1)))
+                    // .collect::<Vec<_>>();
+                    // let (rules, _) = create_signal(initial_rules);
+                    // view!{
+                    // <For
+                    // each=rules
+                    // key=|r| r.0
+                    // view=move |(rule_id, (_, _))| {
+                    // view!{
+                    // <div></div>
+                    // "If "<input size="10" value=move || {r_board().state_types[id].rules[rule_id].target_count}/> " neighbors of type "
+                    // <select>
+                    // <For
+                    // each=states
+                    // key=|states| states.0
+                    // view=move |(id, (_, _))| {
+                    // view! {
+                    // <option value=id>
+                    // State
+                    // {id}
+                    // </option>
+                    // }
+                    // }
+                    // />
+                    // </select>
+                    // " go to "
+                    // <select>
+                    // <For
+                    // each=states
+                    // key=|states| states.0
+                    // view=move |(id, (_, _))| {
+                    // view! {
+                    // <option value=id>
+                    // State
+                    // {id}
+                    // </option>
+                    // }
+                    // }
+                    // />
+                    // </select>
+
+                    // }
+                    // }
+                    // />
+                    // }
+                    // }
+                    // </div>
                     </div>
                 }
             }

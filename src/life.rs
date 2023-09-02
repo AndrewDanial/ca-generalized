@@ -3,7 +3,8 @@ use std::rc::Rc;
 #[derive(Clone)]
 pub struct Rule {
     pub target_state: usize,
-    pub predicate: Rc<dyn Fn(u32) -> bool>,
+    pub target_count: u32,
+    pub predicate: Rc<dyn Fn(u32, u32) -> bool>,
 }
 
 #[derive(Clone)]
@@ -21,9 +22,14 @@ pub struct Board {
 }
 
 impl Rule {
-    pub fn new(target_state: usize, predicate: Rc<dyn Fn(u32) -> bool>) -> Self {
+    pub fn new(
+        target_state: usize,
+        target_count: u32,
+        predicate: Rc<dyn Fn(u32, u32) -> bool>,
+    ) -> Self {
         Rule {
             target_state,
+            target_count,
             predicate,
         }
     }
@@ -49,7 +55,8 @@ impl Board {
             0,                       // fail state
             vec![Rule::new(
                 1,
-                Rc::new(|count| if count == 3 { true } else { false }),
+                3,
+                Rc::new(|count, target_count| if count == target_count { true } else { false }),
             )],
         );
 
@@ -58,8 +65,16 @@ impl Board {
             String::from("#FFFFFF"),
             0,
             vec![
-                Rule::new(1, Rc::new(|count| if count == 2 { true } else { false })),
-                Rule::new(1, Rc::new(|count| if count == 3 { true } else { false })),
+                Rule::new(
+                    1,
+                    2,
+                    Rc::new(|count, target_count| if count == target_count { true } else { false }),
+                ),
+                Rule::new(
+                    1,
+                    3,
+                    Rc::new(|count, target_count| if count == target_count { true } else { false }),
+                ),
             ],
         );
         let state_types = vec![state_0, state_1];
@@ -76,7 +91,7 @@ impl Board {
                 let neighbors = self.count_neighbors(x as i32, y as i32);
                 let mut found = false;
                 for rule in self.state_types[self.grid[y][x]].clone().rules {
-                    let output = (rule.predicate)(neighbors[rule.target_state]);
+                    let output = (rule.predicate)(neighbors[rule.target_state], rule.target_count);
                     if output {
                         next_gen[y][x] = self.state_types[rule.target_state].index;
                         found = true;
