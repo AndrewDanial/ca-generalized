@@ -37,11 +37,12 @@ pub fn Canvas() -> impl IntoView {
             .unchecked_into::<web_sys::CanvasRenderingContext2d>();
         set_board.update(|b| b.grid[y_index][x_index] = state.index);
         ctx.set_fill_style(&wasm_bindgen::JsValue::from_str(&state.color));
-        ctx.fill_rect(
-            (x_index as i32 * cell_size()) as f64 + 1.,
-            (y_index as i32 * cell_size()) as f64 + 1.,
-            cell_size() as f64 - 1.,
-            cell_size() as f64 - 1.,
+        render_board(
+            canvas_ref.get().unwrap(),
+            width(),
+            height(),
+            cell_size(),
+            &board(),
         );
     };
 
@@ -101,7 +102,7 @@ fn render_grid(canvas_ref: HtmlElement<Canvas>, width: i32, height: i32, cell_si
         ctx.set_stroke_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
         ctx.begin_path();
         ctx.move_to(i as f64, 0.);
-        ctx.line_to(i as f64 + 1., height as f64);
+        ctx.line_to(i as f64, height as f64);
         ctx.stroke();
     }
 
@@ -109,7 +110,7 @@ fn render_grid(canvas_ref: HtmlElement<Canvas>, width: i32, height: i32, cell_si
         ctx.set_stroke_style(&wasm_bindgen::JsValue::from_str("#FFFFFF"));
         ctx.begin_path();
         ctx.move_to(0., i as f64);
-        ctx.line_to(width as f64, i as f64 + 1.);
+        ctx.line_to(width as f64, i as f64);
         ctx.stroke();
     }
 }

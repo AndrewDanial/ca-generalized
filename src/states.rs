@@ -123,7 +123,7 @@ pub fn States(
                             set_state.set(id);
                         }>"Select State"</button>
                         <button>"Add Rule"</button>
-                        <button on:click=move |_| {remove_states(id)}>"Remove State"</button>
+                        <button on:click=move |_| { remove_states(id) }>"Remove State"</button>
                         Color:
                         <input
                             type="color"
@@ -173,58 +173,66 @@ pub fn States(
 
                         </select>
 
-                    // <div>
-                    // Rules:
-                    // {
-                    // let next_rule = r_board().state_types[id].rules.len();
-                    // let initial_rules = (0..next_rule)
-                    // .map(|id| (id, create_signal(id + 1)))
-                    // .collect::<Vec<_>>();
-                    // let (rules, _) = create_signal(initial_rules);
-                    // view!{
-                    // <For
-                    // each=rules
-                    // key=|r| r.0
-                    // view=move |(rule_id, (_, _))| {
-                    // view!{
-                    // <div></div>
-                    // "If "<input size="10" value=move || {r_board().state_types[id].rules[rule_id].target_count}/> " neighbors of type "
-                    // <select>
-                    // <For
-                    // each=states
-                    // key=|states| states.0
-                    // view=move |(id, (_, _))| {
-                    // view! {
-                    // <option value=id>
-                    // State
-                    // {id}
-                    // </option>
-                    // }
-                    // }
-                    // />
-                    // </select>
-                    // " go to "
-                    // <select>
-                    // <For
-                    // each=states
-                    // key=|states| states.0
-                    // view=move |(id, (_, _))| {
-                    // view! {
-                    // <option value=id>
-                    // State
-                    // {id}
-                    // </option>
-                    // }
-                    // }
-                    // />
-                    // </select>
+                        <div>
+                            Rules:
 
-                    // }
-                    // }
-                    // />
-                    // }
-                    // }
-                    // </div>
+                            {
+                                let next_rule = r_board().state_types[id].rules.len();
+                                let initial_rules = (0..next_rule)
+                                    .map(|id| (id, create_signal(id + 1)))
+                                    .collect::<Vec<_>>();
+                                let (rules, _) = create_signal(initial_rules);
+                                view! {
+                                    <For
+                                        each=rules
+                                        key=|r| r.0
+                                        view=move |(rule_id, (_, _))| {
+                                            view! {
+                                                <div></div>
+                                                "If "
+                                                <input
+                                                    size="10"
+                                                    value=move || {
+                                                        r_board().state_types[id].rules[rule_id].target_count
+                                                    }
+                                                />
+                                                " neighbors of type "
+                                                <select>
+                                                    <For
+                                                        each=states
+                                                        key=|states| states.0
+                                                        view=move |(id, (_, _))| {
+                                                            view! {
+                                                                <option value=id>
+                                                                    State
+                                                                    {id}
+                                                                </option>
+                                                            }
+                                                        }
+                                                    />
+
+                                                </select>
+                                                " go to "
+                                                <select>
+                                                    <For
+                                                        each=states
+                                                        key=|states| states.0
+                                                        view=move |(id, (_, _))| {
+                                                            view! {
+                                                                <option value=id>
+                                                                    State
+                                                                    {id}
+                                                                </option>
+                                                            }
+                                                        }
+                                                    />
+                                                </select>
+                                            }
+                                        }
+                                    />
+                                }
+                            }
+                        </div>
                     </div>
                 }
             }
