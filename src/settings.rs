@@ -1,4 +1,5 @@
 use crate::life::*;
+use js_sys::Math::random;
 use leptos::html::Canvas;
 use leptos::*;
 use std::time::Duration;
@@ -74,7 +75,19 @@ pub fn Settings(
         }
     });
 
+    let gen_rand = move || {
+        let mut grid = vec![vec![0; w()]; h()];
+        for i in 0..grid.len() {
+            for j in 0..grid[i].len() {
+                let rand = (random() * r_board().state_types.len() as f64) as usize;
+                grid[i][j] = rand;
+            }
+        }
+        w_board.update(|b| b.grid = grid);
+    };
+
     view! {
+        <button on:click=move |_| {gen_rand(); render_board(canvas_ref.get().unwrap(), width(), height(), r_cell_size(), &r_board())}>Generate Random Board</button>
         <div>
             Cell Size:
             {r_cell_size}

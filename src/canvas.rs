@@ -135,6 +135,7 @@ fn render_board(
     for i in 0..grid_height {
         for j in 0..grid_width {
             if !state_types.is_empty() {
+                log!("in render board {}", grid[i][j]);
                 ctx.set_fill_style(&wasm_bindgen::JsValue::from_str(
                     state_types[grid[i][j]].color.as_str(),
                 ));

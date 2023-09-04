@@ -4,6 +4,7 @@ use std::rc::Rc;
 pub struct Rule {
     pub target_state: usize,
     pub target_count: u32,
+    pub count_state: usize,
     pub predicate: Rc<dyn Fn(u32, u32) -> bool>,
 }
 
@@ -23,13 +24,15 @@ pub struct Board {
 
 impl Rule {
     pub fn new(
-        target_state: usize,
-        target_count: u32,
+        target_state: usize, // state to go to if predicate is true
+        target_count: u32,   // amount of neighbor of state type
+        count_state: usize,  // the state type to check count of
         predicate: Rc<dyn Fn(u32, u32) -> bool>,
     ) -> Self {
         Rule {
             target_state,
             target_count,
+            count_state,
             predicate,
         }
     }
@@ -60,8 +63,9 @@ impl Board {
                 String::from("#000000"), // color
                 0,                       // fail state
                 vec![Rule::new(
-                    1,
-                    3,
+                    1, // target state
+                    3, // target count
+                    1, // count state
                     Rc::new(|count, target_count| if count == target_count { true } else { false }),
                 )],
             );
@@ -74,6 +78,7 @@ impl Board {
                     Rule::new(
                         1,
                         2,
+                        1,
                         Rc::new(
                             |count, target_count| if count == target_count { true } else { false },
                         ),
@@ -81,6 +86,7 @@ impl Board {
                     Rule::new(
                         1,
                         3,
+                        1,
                         Rc::new(
                             |count, target_count| if count == target_count { true } else { false },
                         ),
@@ -102,7 +108,7 @@ impl Board {
                 let neighbors = self.count_neighbors(x as i32, y as i32);
                 let mut found = false;
                 for rule in self.state_types[self.grid[y][x]].clone().rules {
-                    let output = (rule.predicate)(neighbors[rule.target_state], rule.target_count);
+                    let output = (rule.predicate)(neighbors[rule.count_state], rule.target_count);
                     if output {
                         next_gen[y][x] = self.state_types[rule.target_state].index;
                         found = true;
