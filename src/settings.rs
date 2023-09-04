@@ -88,21 +88,21 @@ pub fn Settings(
 
     view! {
         <button on:click=move |_| {gen_rand(); render_board(canvas_ref.get().unwrap(), width(), height(), r_cell_size(), &r_board())}>Generate Random Board</button>
-        <div>
-            Cell Size:
-            {r_cell_size}
-            <input
-                type="range"
-                value=move || r_cell_size()
-                min=32
-                max=128
-                step=32
-                on:input=move |ev| {
-                    slider_function(ev);
-                }
-            />
+        // <div>
+        //     Cell Size:
+        //     {r_cell_size}
+        //     <input
+        //         type="range"
+        //         value=move || r_cell_size()
+        //         min=32
+        //         max=128
+        //         step=32
+        //         on:input=move |ev| {
+        //             slider_function(ev);
+        //         }
+        //     />
 
-        </div>
+        // </div>
 
         <div>
             <input
